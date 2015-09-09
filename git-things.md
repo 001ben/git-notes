@@ -26,7 +26,7 @@
 - **git log** will show you the commit history. The following args are accepted
   - **-p** will show you the diff between commits
   - **-2** will limit log to the last 2 commits
-  - **--stat** will show you a summary of the most recent 2 commits
+  - **--stat** will show you a summary of the commits
   - **--shortstat** will only show changed/insertions/deletions line from stat
   - **--name-only** show list of files modified after commit info
   - **--name-status** show list of files added/modified/deleted info
@@ -60,3 +60,12 @@
 - **git push _remote-name_ _branch-name_** will push the branch to the remote repo
 
 ## Tagging
+- **git log** lists all logs. Below are the modifiers.
+  - **-l _search-pattern_** filters list by pattern
+  - **-a _tag-name_ -m '_tag-message_'** adds an annotated tag.
+  - **git log _tag-name_** is used to add a lightweight tag. Note no options used.
+  - can use **git show _tag-name_** to show a tag along with it's commit information
+  - **git tag -a _tag-name_ _commit-checksum_** will tag a historical commit. Only first few characters of checksum are required (enough to identify)
+  - **git push _tag-name_** will push a tag to a remote, since **git push** doesn't automatically push tags to remote.
+  - **git push _remote-name_ --tags** will push all tags to remote server. **git clone** and **git pull** will then get tags as well.
+  - you can't really checkout a tag since you can't move tags around, but you can create a branch at the commit a tag references. You do this with **git checkout -b _new-branch-name_ _tag-name_**.
