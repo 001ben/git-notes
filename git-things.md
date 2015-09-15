@@ -1,4 +1,7 @@
-# git things i learnt
+# Git things i learnt
+Below are some notes on my process of learning git. Along with these notes, i've also written a server component to allow viewing these notes in HTML over http allowing custom css, and i've also committed these notes as i change them to a local repo.
+
+## Set up
 - **git init** creates a new git project
 - **git clone** creates clones a new git project from a url
 - **git add** to add untracked files, and non staged files
@@ -66,6 +69,9 @@
   - **git log _tag-name_** is used to add a lightweight tag. Note no options used.
   - can use **git show _tag-name_** to show a tag along with it's commit information
   - **git tag -a _tag-name_ _commit-checksum_** will tag a historical commit. Only first few characters of checksum are required (enough to identify)
-  - **git push _tag-name_** will push a tag to a remote, since **git push** doesn't automatically push tags to remote.
+  - **git push _remote-name_ _tag-name_** will push a tag to a remote, since **git push** doesn't automatically push tags to remote.
   - **git push _remote-name_ --tags** will push all tags to remote server. **git clone** and **git pull** will then get tags as well.
   - you can't really checkout a tag since you can't move tags around, but you can create a branch at the commit a tag references. You do this with **git checkout -b _new-branch-name_ _tag-name_**.
+
+## Git Aliases
+- you can alias git commands for ease and familiarity

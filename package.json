@@ -1,0 +1,22 @@
+{
+  "name": "git-test",
+  "version": "1.0.0",
+  "description": "This is a project to make notes on git in markdown",
+  "main": "server.js",
+  "scripts": {
+    "test": "test",
+    "start": "node dist/server.js"
+  },
+  "author": "ben brown",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.3",
+    "github-markdown-css": "^2.0.10",
+    "gulp": "^3.9.0",
+    "gulp-coffee": "^2.3.1",
+    "gulp-plumber": "^1.0.1",
+    "gulp-rename": "^1.2.2",
+    "jade": "^1.11.0",
+    "marked": "^0.3.5"
+  }
+}

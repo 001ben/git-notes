@@ -1,0 +1,9 @@
+#markdown-page {
+  margin: 20px;
+  overflow: auto;
+}
+
+strong {
+  color: #FF3300;
+  border-bottom: 1px solid blue;
+}
