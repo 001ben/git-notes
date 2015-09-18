@@ -75,3 +75,7 @@ Below are some notes on my process of learning git. Along with these notes, i've
 
 ## Git Aliases
 - you can alias git commands for ease and familiarity
+- **git config --global alias.co checkout** would alias checkout with co, so you can use **git co** to perform a checkout
+- **git config --global alias.unstage 'reset HEAD --'** would add usability through allowing unstage to mean something
+- **git config --global alias.last 'log -1 HEAD'** would add a last command to log the last commit. This is apparently common.
+- to run an external command, use the form **git config --global alias._alias-name '!external-command'_**. Note the exclamation mark.
