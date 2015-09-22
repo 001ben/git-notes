@@ -7,3 +7,8 @@ strong {
   color: #FF3300;
   border-bottom: 1px solid blue;
 }
+
+em {
+  color:#778899;
+  text-shadow: 1px 1px 0 #2F4F4F;
+}

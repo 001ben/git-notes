@@ -1,6 +1,7 @@
 # Git things i learnt
 Below are some notes on my process of learning git. Along with these notes, i've also written a server component to allow viewing these notes in HTML over http allowing custom css, and i've also committed these notes as i change them to a local repo.
 
+# 1/2. Basics
 ## Set up
 - **git init** creates a new git project
 - **git clone** creates clones a new git project from a url
@@ -35,6 +36,8 @@ Below are some notes on my process of learning git. Along with these notes, i've
   - **--name-status** show list of files added/modified/deleted info
   - **--since=2.weeks** limits output to last 2 weeks. Accepts lots of formats
   - **--grep** searches the commit message for the string
+  - **--decorate** shows which branches point to which commits
+  - **--all** shows commits from all branches
   - **-S** only show commits adding or removing code matching the string
   - a path after a **--** will limit log to the commits changing files given in the path
   - **--pretty=*option*** will format the output as per option. Options include
@@ -43,6 +46,7 @@ Below are some notes on my process of learning git. Along with these notes, i've
     - full
     - fuller
     - format - this one is special, useful with --graph
+- good way to see commits across all branches is **git log --oneline --decorate --graph --all**
 
 ## Oops, how do i fix it?
 - **git commit --amend** should be used if you forget to add files or mess up your commit message
@@ -52,13 +56,14 @@ Below are some notes on my process of learning git. Along with these notes, i've
 ## Remotes
 - **git remote** shows you which remote servers are configured. If you've cloned, you should at least see origin.
   - **git remote -v** shows you the url as well.
-  - **git remote add _shortname_ *url*** adds a new remote aliased by short name at the url.
-  - **git remote show _shortname_** will show you information about that remote
-  - **git remote rename _shortname_ _new-shortname_** renames a remote shortname
-  - **git remote rm _shortname_** removes a remote. You would use this if you got rid of a server or maybe a contributor isn't contributing anymore.
+  - **git remote add _short-name_ *url*** adds a new remote aliased by short name at the url.
+  - **git remote show _short-name_** will show you information about that remote
+  - **git remote rename _short-name_ _new-shortname_** renames a remote shortname
+  - **git remote rm _short-name_** removes a remote. You would use this if you got rid of a server or maybe a contributor isn't contributing anymore.
+  - **git clone -o _short-name_** clones into the specified repo using the given shortname instead of origin.
 
 
-- **git fetch *shortname*** will fetch a branch to your machine and let you access it. It will not merge the branches though.
+- **git fetch *shortname*** will fetch branches to your machine and let you access them. It will not merge the branches though.
 - **git pull** will fetch and merge the latest from a tracked branch automatically
 - **git push _remote-name_ _branch-name_** will push the branch to the remote repo
 
@@ -79,3 +84,42 @@ Below are some notes on my process of learning git. Along with these notes, i've
 - **git config --global alias.unstage 'reset HEAD --'** would add usability through allowing unstage to mean something
 - **git config --global alias.last 'log -1 HEAD'** would add a last command to log the last commit. This is apparently common.
 - to run an external command, use the form **git config --global alias._alias-name '!external-command'_**. Note the exclamation mark.
+
+# 3. Branching
+All about branches, remotes, tracking, deleting and merging branches.
+
+## Git Branch Basics
+- A branch is just a pointer to a commit
+- **git branch _branch-name_** creates a new branch pointing to the commit you're currently on.
+- **git branch -d _branch-name_** will delete a branch when you're done. Do this if 2 branches point to the same commit
+- **HEAD** is a pointer to the branch you're currently on.
+- **git checkout _branch-name_** switches to the branch name given. It moves head to a different branch.
+- **git merge _branch-name_** merges the given branch into the current branch. You can also use **git mergetool**. If there are merge conflicts, they can be resolved on disk by changing them and adding to the staging area, then you can call **git commit** to commit the merge.
+
+## Git Branching
+- **git branch** will list all branches
+  - **-v** will show you the last commit for each branch
+  - **--merged** and **--no-merged** will show you only branches that have been merged, or have not been merged into the current branch respectively. Check a branch with **--merged** before deleting it.
+- Topic branches can be easily created to silo work into work related to particular features. They can be created and deleted when they aren't required, and merged into other branches. Merge commits are only created if appending work over previously committed work.
+- Remote references include branches and tags stored on a remote server. **git ls-remote _remote-name_** can be used to list all remote references explicitly, or **git remote show _remote-name_** can be used to show remote branches as well as other information.
+- Branches need to be explicitly pushed to a remote for it to be shared. This is done using **git push _short-name_ _branch-name_**, this will create a branch on the remote if it doesn't exist. Git expands that automatically to **git push _short-name_ refs/heads/_branch-name_:refs/heads/_branch-name_**. You could additionally name the branch differently on the server using **git push _short-name branch-name:new-branch-name_**.
+- If sick of typing passwords repeatedly over http, can call **git config --global credential.helper cache** which instructs to cache passwords for a few minutes.
+- Fetching branches using a standard fetch command doesn't create a copy of the branch that's editable, it just fetches the remote reference. To access a branch:
+  - you can merge it into current with **git merge _remote-name/branch-name_**
+  - make your own branch for the remote branch using **git checkout -b _local-branch-name_ _remote-name/branch-name_**. This can be shortened **git checkout --track _remote-name/branch-name_**
+
+## Git Tracking Branches
+- when you create a local branch from a remote using checkout, it automatically creates a tracking branch (automatically updated).
+- can use **-u** or **--set-upstream-to** arg to branch to set or change the tracked branch. e.g. **git branch -u _server-name_**.
+- can use **git branch -vv** to see all tracking branches along with information on where that branch is relative to the rest. Note this only displays cached information, use **git fetch --all** to get latest from all remotes.
+- **git pull** performs a fetch followed by a merge automagically. It's generally better to do the commands separately.
+- Remote branches can be easily deleted using **git push _remote-name_ --delete _branch-name_**. This deletes the ref, but the data will generally be kept for a while before removing it so it can easily be recovered.
+
+## Git Rebasing
+- **git checkout _topic-branch-name_** followed by **git rebase _base-branch-name_** will rewrite the commit history of _new-branch-name_ to include the history of _branch-name_.
+  - if _base-branch-name_ is checked out, you can rebase and checkout _topic-branch-name_ using **git rebase _base-branch-name_ _topic-branch-name_**
+- Often used to apply commits cleanly on a remote branch. This command effectively updates the commit the topic branch is based off, and keeps the commit history clean.
+- DO NOT rebase commits that exist outside of your repository (i.e. nothing that you've pushed already)
+- if you end up with a screwed commit history (with you referencing commits via merge that aren't referenced on the server due to a rebase), then performing another rebase will determine what is unique to your branch and what isn't a merge commit, then rebase those onto unique commits of the rebase branch.
+- can use **git pull --rebase** to do all this cleanly.
+- rebase is good for keeping the commit history clean, but merge maintains information about what was actually developed on what branch. Both are necessary in different situations, so what this is used for is very team based. Good practice is to rebase all local changes before committing them.
