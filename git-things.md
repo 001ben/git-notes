@@ -143,3 +143,11 @@ Protocol options include:
   - Often the fastest protocol.
   - No authentication.
   - Difficult to set up owing to requiring it's own daemon and having an obscure port unblocked.
+
+## Server Setup
+Adding a repository to a server that has ssh access is super easy.
+
+1. Get a bare clone of your repo, using the **--bare** switch.
+  - Standard is for this folder to end in **.git**
+2. Copy the bare repo to the server. Can be performed with **scp -r _project_.git _user_@_url_:/opt/git/_project_.git**
+3. To allow group write permissions for a repo, ssh to the server, and run **git init --bare --shared** inside the project directory. Write access to the server will allow anyone with ssh access to push to the server.
