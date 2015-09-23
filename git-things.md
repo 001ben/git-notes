@@ -2,6 +2,8 @@
 Below are some notes on my process of learning git. Along with these notes, i've also written a server component to allow viewing these notes in HTML over http allowing custom css, and i've also committed these notes as i change them to a local repo.
 
 # 1/2. Basics
+Just the basics of working with git. Maybe the most common/important section though.
+
 ## Set up
 - **git init** creates a new git project
 - **git clone** creates clones a new git project from a url
@@ -123,3 +125,21 @@ All about branches, remotes, tracking, deleting and merging branches.
 - if you end up with a screwed commit history (with you referencing commits via merge that aren't referenced on the server due to a rebase), then performing another rebase will determine what is unique to your branch and what isn't a merge commit, then rebase those onto unique commits of the rebase branch.
 - can use **git pull --rebase** to do all this cleanly.
 - rebase is good for keeping the commit history clean, but merge maintains information about what was actually developed on what branch. Both are necessary in different situations, so what this is used for is very team based. Good practice is to rebase all local changes before committing them.
+
+#Git on the server
+
+## Protocols
+Protocol options include:
+- Local protocol, specified as **git remote add local-proj _/path/to/file_**
+  - Simple, easy to use, may not be the fastest. Using  file:/// slows it down.
+- Http protocol, specified as **git remote add http-proj _http://example.com/project.git_**
+  - Smart http lets lots of actions be performed on one url.
+  - Allows authentication
+  - Can be a pain to set up
+- SSH protocol, specified as **git remote add ssh-proj _ssh://user@server/project.git_** or **git remote add ssh-proj _user@server:project.git_**
+  - Can't serve anonymous access with it, would need to use with something else.
+  - Fast and has good encryption/authentication features.
+- Git protocol, specified as **git remote add git-proj _git://example.com/project.git_**.
+  - Often the fastest protocol.
+  - No authentication.
+  - Difficult to set up owing to requiring it's own daemon and having an obscure port unblocked.
