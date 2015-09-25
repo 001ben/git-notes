@@ -192,10 +192,10 @@ To daemonize the process, if it's an ubuntu machine, you would add a script to *
 start on startup
 stop on shutdown
 exec /usr/bin/git daemon \
-    --user=git --group=git \
-    --reuseaddr \
-    --base-path=/opt/git/ \
-    /opt/git/
+  --user=git --group=git \
+  --reuseaddr \
+  --base-path=/opt/git/ \
+  /opt/git/
 respawn
 ```
 It's encouraged to create a new user called **git-ro** for example with read only priveleges, and to run the daemon as this user.
@@ -203,3 +203,20 @@ It's encouraged to create a new user called **git-ro** for example with read onl
 When the machine is rebooted, the daemon will run. To start the daemon without rebooting, run **initctl start local-git-daemon**.
 
 The final step in allowing access to git repositories is adding a file named **git-daemon-export-ok** to the bare folder of any hosted git repositories.
+
+## HTTP Server
+The concept behind a http server is that git provides a git-http-backend CGI script which will do the negotiation to send and receive data over HTTP.
+
+A node package exists to run a git server. Install via **npm install git-server**. [More info](https://github.com/stackdot/NodeJS-Git-Server).
+
+## GitWeb
+After setting up git on a server, it's frequently desirable to have some sort of visual.
+Git includes something called GitWeb, that provides a web interface for this.
+
+Easy setup: **git instaweb** (not available on windows)
+Permanent setup:
+- Some linux distros have a **gitweb** package you can install with apt-get
+- Git clone method:
+  - **git clone git://git.kernel.org/pub/scm/git/git.git**
+  - **cd git/**
+  - **make
