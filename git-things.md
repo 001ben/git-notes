@@ -118,7 +118,7 @@ All about branches, remotes, tracking, deleting and merging branches.
 - Remote branches can be easily deleted using **git push _remote-name_ --delete _branch-name_**. This deletes the ref, but the data will generally be kept for a while before removing it so it can easily be recovered.
 
 ## Git Rebasing
-- **git checkout _topic-branch-name_** followed by **git rebase _base-branch-name_** will rewrite the commit history of _new-branch-name_ to include the history of _branch-name_.
+- **git checkout _topic-branch-name_** followed by **git rebase _base-branch-name_** will rewrite the commit history of _topic-branch-name_ to include the history of _base-branch-name_.
   - if _base-branch-name_ is checked out, you can rebase and checkout _topic-branch-name_ using **git rebase _base-branch-name_ _topic-branch-name_**
 - Often used to apply commits cleanly on a remote branch. This command effectively updates the commit the topic branch is based off, and keeps the commit history clean.
 - DO NOT rebase commits that exist outside of your repository (i.e. nothing that you've pushed already)
@@ -209,7 +209,7 @@ The concept behind a http server is that git provides a git-http-backend CGI scr
 
 A node package exists to run a git server. Install via **npm install git-server**. [More info](https://github.com/stackdot/NodeJS-Git-Server).
 
-## GitWeb
+## Git over the Web
 After setting up git on a server, it's frequently desirable to have some sort of visual.
 Git includes something called GitWeb, that provides a web interface for this.
 
@@ -219,4 +219,9 @@ Permanent setup:
 - Git clone method:
   - **git clone git://git.kernel.org/pub/scm/git/git.git**
   - **cd git/**
-  - **make
+  - **make GITWEB_PROJECTROOT="/opt/git" prefix=/user gitweb**
+  - **sudo cp -Rf gitweb /var/www/**
+  - make the web server use the cgi script, located in the directory you copied gitweb to, titled **gitweb.cgi**
+  - when running, you should now be able to navigate to http://gitserver/ to view online repositories.
+
+GitLab is a popular web front end for git backed by a database which allows users to interact with git on the server, like create repos, check history, manage commits and pull requests, so on.
