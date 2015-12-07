@@ -21,8 +21,7 @@
         res.json(err);
       } else {
         res.render('index', {
-          title: 'Hey',
-          message: 'Welcome to ben',
+          title: 'git notes',
           markdownContent: marked(data.toString())
         });
       }

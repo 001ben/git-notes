@@ -13,7 +13,7 @@ app.get '/', (req, res) ->
     if err?
       res.json(err);
     else
-      res.render 'index', {title: 'Hey', message: 'Welcome to ben', markdownContent: marked(data.toString())}
+      res.render 'index', {title: 'git notes', markdownContent: marked(data.toString())}
     return
   return
 

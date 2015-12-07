@@ -126,7 +126,7 @@ All about branches, remotes, tracking, deleting and merging branches.
 - can use **git pull --rebase** to do all this cleanly.
 - rebase is good for keeping the commit history clean, but merge maintains information about what was actually developed on what branch. Both are necessary in different situations, so what this is used for is very team based. Good practice is to rebase all local changes before committing them.
 
-#Git on the server
+# 4.  Git on the server
 
 ## Protocols
 Protocol options include:
@@ -213,7 +213,7 @@ A node package exists to run a git server. Install via **npm install git-server*
 After setting up git on a server, it's frequently desirable to have some sort of visual.
 Git includes something called GitWeb, that provides a web interface for this.
 
-Easy setup: **git instaweb** (not available on windows)
+Easy setup: **git instaweb** (not available on windows)  
 Permanent setup:
 - Some linux distros have a **gitweb** package you can install with apt-get
 - Git clone method:
@@ -225,3 +225,10 @@ Permanent setup:
   - when running, you should now be able to navigate to http://gitserver/ to view online repositories.
 
 GitLab is a popular web front end for git backed by a database which allows users to interact with git on the server, like create repos, check history, manage commits and pull requests, so on.
+
+# 5. Distributed Workflows
+
+## Centralized Workflow
+This involves a single repository that all developers pull/push to. If there are any problems, they merge, then push again.
+
+##
