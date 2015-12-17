@@ -587,3 +587,12 @@ You can have subtrees within your project representing different projects/reposi
 ## Advanced Merging - Other types of merges
 - **git merge -X_ours/theirs_ _branch-name_** just takes the specified side in case of a merge conflict, even for entire binary files.
 - **git merge -s _ours/theirs_ _branch-name_** performs a sort of fake merge, taking all the work in the specified branch, and ignoring all work in the other just for the purpose of having a merge commit. This can be useful if you're going to have work needing to be merged into 2 branches which will also need to be merged.
+
+## Rerere in depth
+The recorded resolution feature is super helpful when merging and rebasing a lot, and can be used to record resolutions when merging, then to rewind and rebase without having to fix the conflicts again.
+
+- **git config --global rerere.enabled true** to turn it on automatically as before.
+- **git rerere status** to see what files have a pre-merge state recorded
+- **git rerere diff** will show the current state of the resolution when in the process of recording a resolution.
+- **git checkout --conflict=_diff3/merge_ _filename_** to add the conflict markers in if rerere was incorrect or for some other reason.
+- **git rerere** to manually resolve all currently conflicting files that can be resolved.
