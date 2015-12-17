@@ -596,3 +596,13 @@ The recorded resolution feature is super helpful when merging and rebasing a lot
 - **git rerere diff** will show the current state of the resolution when in the process of recording a resolution.
 - **git checkout --conflict=_diff3/merge_ _filename_** to add the conflict markers in if rerere was incorrect or for some other reason.
 - **git rerere** to manually resolve all currently conflicting files that can be resolved.
+
+## Debugging with git
+- **git blame _filename_** outputs a file annotated with the user who made changes to each line. Lines starting with **^** were in the original file commit.
+  - **-L 12,22** would limit the output to lines 12 to 22 inclusive.
+  - **-C** will include info about what file each line originally came from, so if files were renamed or split apart, git can let you know that.
+- **git bisect start** will start a bisect session which helps isolate a breaking commit that may be hidden within hundreds of commits.
+  - **git bisect bad** marks the current commit as bad (failing, dodgy code)
+  - **git bisect good _tag/commit-sha_** marks the given commit as known good code, and will change the current commit for you continuously, then you mark each one as good or bad until you isolate your issue.
+  - **git bisect reset** will reset HEAD to it's original position.
+  - After starting a bisect session, you can call **git bisect run _script-file_** which will invoke a script on each commit to output 0 if the commit is good, or non-0 if the commit is bad to automate the whole git bisect.
