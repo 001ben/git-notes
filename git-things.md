@@ -387,10 +387,10 @@ You can use <username>/<repo>#<num> to reference something in a different repo.
 You can reference commits with their SHA-1, but you have to use the full 40 character SHA-1.
 
 ## Github Flavored markdown
-Task lists syntax:
-- [X] one
-- [] two
-- [] three
+Task lists syntax (- [x] and - [ ], note the space before and inside the brackets):
+- [x] one
+- [ ] two
+- [ ] three
 
 Code snippets syntax:
 ```java
@@ -606,3 +606,43 @@ The recorded resolution feature is super helpful when merging and rebasing a lot
   - **git bisect good _tag/commit-sha_** marks the given commit as known good code, and will change the current commit for you continuously, then you mark each one as good or bad until you isolate your issue.
   - **git bisect reset** will reset HEAD to it's original position.
   - After starting a bisect session, you can call **git bisect run _script-file_** which will invoke a script on each commit to output 0 if the commit is good, or non-0 if the commit is bad to automate the whole git bisect.
+
+## Submodules
+Submodules are a way of working on multiple related git projects under a top level git project if you want to include a separate project, or perhaps to modularise your development into multiple parts.
+
+Note that when you add a submodule, it will add a folder in the working directory, but is stored in git as a directory entry containing just the commit pointed to by the submodule directory. The commit required for the project to function is stored at the project level, along with submodule commits. The commits can also be pushed to the submodule URL's to contribute to the standalone submodule projects.
+
+Git submodules are by default created with a detached head, meaning work can't be contributed without checking out a branch. Detached head meaning it's showing and initialized to a remote branch.
+
+- **git submodule add _url_** will add a new submodule to your project.
+- the **.gitmodules** file tracks which submodules have been added and where to pull/push them from.
+- **git diff --submodule** formats a summary of changes to a submodule nicely.
+- **cd _SubmoduleName_; git submodule init** will initialize a submodule from a newly cloned project which didn't bring the submodule files.
+- **git clone --recursive _url_** will pull down a project as well as all submodules (same as calling git submodule init on each submodule).
+- To update a submodule, run git fetch from inside the directory, and just merge with an origin branch. This can be done quicker with **git submodule update --remote _SubmoduleName_**, and will default to the master branch unless otherwise specified by **git config -f .gitmodules submodule._SubmoduleName_.branch _branch-name_**, the **-f .gitmodules** bit stores this change for the rest of the project as well.
+- **git update --remote** will update all submodules, so if there are many, you may want to specify the name as above.
+- To make a submodule diff standard, configure with **git config --global diff.submodule log**. If you update a submodule and commit, you will lock other people into having that code when other people update.
+- **git config status.submodulesusmmary 1** will direct git status to provide a summary of changes to a submodule.
+- To work on a submodule, just checkout a branch. Then to update a submodule with a checked out branch, you need to pass either --merge or --rebase to the **git update --remote** command. I.e. **git update --remote --_merge/rebase_**. If you leave off the flag, it will go back to a detached head state and you'll need to checkout a branch again. If there are any merge conflicts, they can be fixed from the subdirectory as per normal.
+- **git push --recurse-submodules=check** will check submodules have been pushed before the main project has been pushed.
+- **git push --recurse-submodules=on-demand** will push any submodules with commits before pushing the main project.
+- If a subproject has been updated to different commits in different branches of the superproject, it can cause issues when merging (like in a git pull). If one subproject commit is just an ancestor of the other, it will just take the latter in the merge, else the below process should be followed.
+  - **git diff** to see the SHA-1 for the conflicting commits of the subproject.
+  - Go into the subproject, and attempt to merge the second commit into our commit, i.e. **git branch try-merge _sha-of-conflicting-commit_**.
+  - If it merges cleanly, go into the main project, add the changed subproject again and commit.
+  - If it doesn't merge cleanly, fix the merge conflict in the subproject, then commit into the subproject, and then again in the main project.
+  - If at the beginning of the merge, they were conflicting but a merge commit exists referencing the 2 divergent subproject commits in question, git will suggest the merge commit as a solution, so go and fast-forward merge the subproject into that commit SHA-1 suggested by the initial merge, test the changes, see what the differences are and then finally add and commit the superproject.
+- **git submodule foreach '_git command_'** will run the git command in all subprojects, below are some useful aliases.
+  - **git config alias.sdiff '!' "git diff && git submodule foreach 'git diff'"**
+  - **git config alias.spush 'push --recurse-submodules=on-demand'**
+  - **git config alias.supdate 'submodule update --remote --merge'**
+- If you switch from a branch with a git submodule to a branch without, the submodule directory will still exist untracked in your directory, you can remove it with **git clean -fdx**, but then you have to re-initialize it if you switch back to a branch with the submodule with **git submodule update --init**
+- If you migrate a subdirectory to a submodule, and remove the subdirectory in place of adding a submodule, you'll need to **git rm -r _subdirectory_** to remove the subdirectory properly. If you switch back to a branch that still has the subdirectory, you will need to **git checkout -f _branch-name_** to accomplish it, but it will delete any unsaved changes so precede with care in this case. In the reverse case, the submodule directory will be empty so use **git submodule update**, or **git checkout .** if that isn't working.
+
+## Bundling
+Bundles are used to store ranges of commits in a file that can be sent when regular network operations aren't available for some reason.
+- **git create bundle _filename_ HEAD master** stores all commits required to construct master, HEAD should be stored too. The file can then be sent to someone else however.
+- **git clone _bundle-filename_ _project-folder-name_** will clone from a bundle containing an entire project.
+- The range of commits needs to be determined to create a bundle to send a specific set of commits, this could be determined by using **git log --oneline master ^origin/master** and comparing that to **git log --oneline master** to find the first commit to omit. After determining that commit, use **git bundle create _filename_ master ^_omit-sha1_**.
+- When importing a bundle with a range of commits into an existing repo, using **git bundle verify _filename_** to verify the repo in relation to the bundle.
+- **git bundle list-heads _filename_** shows what references are in the bundle that can be imported, this info can be used with **git fetch _filename_ _bundle-head-name_/_new-branch-name_** to import the commits to the new branch in the current repo.
