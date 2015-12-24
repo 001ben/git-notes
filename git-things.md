@@ -663,3 +663,19 @@ Replace can be used to treat one commit as another. An example was given showing
 - Get the historical commits - **git remote add project-history _url_**, *git fetch project-history**
 - Replace the common commit in our repo, with the common commit in the historical repo, and it will act as if the histories are joined together (and ignoring the base commit) - **git replace _our-common-commit-sha_ _historical-common-commit-sha_**
 - Git blame, git bisect and all the cool tools will now work whils incorporating the added historical info.
+
+## Credential storage
+Credentials can be cached when entering credentials over HTTP or SSH, the following are the options which can be configured with **git config --global credential.helper _option_**.
+- cache - will cache the password in memory for a give time. Set the time in seconds with **--timeout _seconds_**
+- store - stores passwords and usernames in plain text on disk. Use --file to modify where they're stored.
+- osxkeychain - uses keychain on mac for passwords.
+- wincred - this is a helper that can be installed to use the windows credential store. Check api usage or stack overflow for this.
+
+Several helpers can be configured as below:
+```
+[credential]
+    helper = store --file /mnt/thumbdrive/.git-credentials
+    helper = cache --timeout 30000
+```
+
+All the config options invoke a corresponding program to manage credential storage, so configuring cache would just invoke **git credential-cache**. You can easily write a custom credential cache in this manner, and add it to you PATH so you can set **git config --gloal credential.helper foo** to run git-credential-foo for you. More on this at [git-scm](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage#A-Custom-Credential-Cache).
