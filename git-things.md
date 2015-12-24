@@ -646,3 +646,20 @@ Bundles are used to store ranges of commits in a file that can be sent when regu
 - The range of commits needs to be determined to create a bundle to send a specific set of commits, this could be determined by using **git log --oneline master ^origin/master** and comparing that to **git log --oneline master** to find the first commit to omit. After determining that commit, use **git bundle create _filename_ master ^_omit-sha1_**.
 - When importing a bundle with a range of commits into an existing repo, using **git bundle verify _filename_** to verify the repo in relation to the bundle.
 - **git bundle list-heads _filename_** shows what references are in the bundle that can be imported, this info can be used with **git fetch _filename_ _bundle-head-name_/_new-branch-name_** to import the commits to the new branch in the current repo.
+
+## Replace
+Replace can be used to treat one commit as another. An example was given showing how this can be used to separate out a project history into historical data and recent commits.
+
+### Separation
+- Make a branch at the cutoff point and push that data to a new repo.
+  - **git branch history _commit-sha_**
+  - **git remote add _remote-alias_ _remote-url_**
+  - **git push _remote-alias_ history:master**
+- Create a new base commit with instructions on how to retrieve the historical commits, and splice the recent history from the common commit in both repos onto that dummy base commit.
+  - To create a new parentless base commit, use **echo 'instructions to retrieve base commit' | git commit-tree _sha-parent-of-common-commit_^{tree}**
+  - Rebase onto the new base commit - **git rebase --onto _sha-of-base-commit_**
+
+### Reconnection
+- Get the historical commits - **git remote add project-history _url_**, *git fetch project-history**
+- Replace the common commit in our repo, with the common commit in the historical repo, and it will act as if the histories are joined together (and ignoring the base commit) - **git replace _our-common-commit-sha_ _historical-common-commit-sha_**
+- Git blame, git bisect and all the cool tools will now work whils incorporating the added historical info.
