@@ -679,3 +679,50 @@ Several helpers can be configured as below:
 ```
 
 All the config options invoke a corresponding program to manage credential storage, so configuring cache would just invoke **git credential-cache**. You can easily write a custom credential cache in this manner, and add it to you PATH so you can set **git config --gloal credential.helper foo** to run git-credential-foo for you. More on this at [git-scm](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage#A-Custom-Credential-Cache).
+
+# Configuring Git
+
+## git config
+Git config options can be set at the following levels:
+- system = all repositories for all users on the system
+- global = all repositories for this user
+- local = this repository for this user
+
+The lowest level where an option is specified will be used, otherwise the default will be taken
+
+The following are a list of possible config options you may set in git:
+- core.editor=_your editor_ - can be notepad, emacs, vi or whatever else
+- commit.template=_text-file-with-message_ - useful for standardizing commit messages in a team.
+- core.pager=more/less/''/other-pager
+- user.signingkey=_gpg-signing-key_ - if you're signing tags
+- core.excludesfiles=_global-gitignore-filename_
+- help.autocorrect=_time-limit-in-tenths-of-a-second_ - auto corrects spelling mistakes if no answer is given in the timeframe
+- color.ui=auto/always/false
+- color.branch, color.diff, color.interactive, color.status=true, false, always
+- color.branch.meta="blue black bold" - would set branch colors to blue foreground, black background and bold text.
+- core.autocrlf=true/input/false - true for lf to crlf on checkout and reverse on commit (windows), input for crlf to lf on just commit (linux).
+- core.whitespace=... - You can run git apply to warn or fix these whitespace errors, with **git apply --whitespace=warn** or **git apply --whitespace=fix**
+	- blank-at-eol - looks for spaces at end of line. On by default.
+	- blank-at-eof - looks for whitespace at end of file. On by default.
+	- space-before-tab - looks for spaces before tabs at beginning of lines. On by default.
+	- indent-with-non-tab - looks for lines that begin with spaces instead of tabs, this is controlled by the **tabwidth** option. Off by default.
+	- tab-in-indent - watches for tabs in the indent portion of line. Off by default.
+	- cr-at-eol - tells git that carriage returns at the end of the line are ok.
+- receive.fsckObjects=true/false - git can verify all SHA-1 records still match. It's expensive and off by default, but can be used to make sure faulty or malicious clients aren't	introducing corrupt data.
+- receive.denyNonFastForwards=true/false - setting this true on server will deny force pushes of non fast forward rebases (the dangerous ones).
+- receive.denyDeletes=true/false - setting this to true on server prevents deletion of any branches or tags. To remove remote branches from the server, you must do it manually.
+
+
+To configure an external diff script, you've got 2 options.
+1. Set the .gitconfigure file as below using either **git config --global -e** or by setting each value via command line.
+```
+[merge]
+  tool = kdiff3
+[mergetool "extMerge"]
+  path = "C:/Program Files/KDiff3/kdiff3.exe"
+  trustExitCode = false
+[diff]
+  tool = extDiff
+```
+
+2. Configure some executable scripts/programs to pass parameters from git to your merge/diff program. For this option, you'll need an extMerge.exe script to just call your merge program with all the params, and an extDiff.exe script to call extMerge.exe with only paramters in positions 2 and 5 (1 and 4 from a 0-index). Consult git-scm for direction on what config parameters to set. Finally, beware of running git diff on indexed changes, it will not run your external script at all without **git diff --cached**.
