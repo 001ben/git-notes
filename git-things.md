@@ -726,3 +726,44 @@ To configure an external diff script, you've got 2 options.
 ```
 
 2. Configure some executable scripts/programs to pass parameters from git to your merge/diff program. For this option, you'll need an extMerge.exe script to just call your merge program with all the params, and an extDiff.exe script to call extMerge.exe with only paramters in positions 2 and 5 (1 and 4 from a 0-index). Consult git-scm for direction on what config parameters to set. Finally, beware of running git diff on indexed changes, it will not run your external script at all without **git diff --cached**.
+
+## git attributes
+You can use attributes to apply settings to specific paths.
+
+- Treating Text files as Binary Files - make a .gitattributes file and add ** *.pbxproj binary**, useful to treat text files as binary files, i.e. a database stored as a text file.
+- Diffing Binary files (word) - Put the following in your .gitattributes file ** *.docx diff=word**. Then get a utility command to convert word to text, [docx2txt](http://docx2txt.sourceforge.net) is one such program. Then you create an executable script to convert output to a format git expects, the bash script is called "docx2txt" and contains **docx2txt.p1 $1 -**, then finally configure git to use that script for diffing, with **git config diff.word.textconv docx2txt**. It's not perfect, but it works. There's another example which allows diffing metadata of images on http://git-scm.com.
+- Keyword expansion - You can expand keywords on checkout (smudge filter), and retract them on staging (clean filter). Adding **_filename/path_ ident** and **$ID$** to the matching filepath will expand expand that to the SHA-1 of the blob. To setup the clean and smudge filters, you config a filter alias with command line calls, as below, then add a .gitattributes entry calling the filter alias.
+```
+// command line
+git config --global filter.indent.clean indent
+git config --global filter.indent.smudge cat
+//git attributes
+*.c filter=indent
+```
+In this way, you can write whatever clean and smudge scripts you want which will expand custom keywords. One consideration to make, is that the .gitattributes file is committed, while the scripts are not, so care must be taken that the filters can fail gracefully and the project can still work properly.
+- Ignoring files during export - adding **_file-pattern_ export-ignore** to a .gitattributes will not export the files which match the pattern, such as testing files.
+- Adding information during export - adding **_file-pattern_ export-substr** to the .gitattributes, and using $Format:_formatstring_$ in the marked files will process the format string on export using the git log formatting to add in extra information at the time of export.
+- Adding merge strategies - You can mark file patterns for specific merge strategies, say for example there's a long running topic branch whose database has diverged from the main project's branch, but you want to keep the main project's database in all merges into the main branch, you can add a .gitattributes entry with **database.xml merge=ours**, and then config git with **git config --global merge.ours.driver true**. Future merges of the topic branch into the main branch will always take the main branch database.
+
+## Git Hooks
+Git supports scripts being added to hook into git processes.
+
+To enable a hook script, put a file in the .git/hooks that is named appropriately (without any extension) and is executable. The hook will then be run. Simple as that.
+
+### Client side hooks
+
+- pre-commit - this hook is run before a commit message is even typed. This is used to inspect the snapshot which is to be committed and to check things like code quality, or run a linter.
+- prepare-commit-msg - run after the commit message is prepared, but before it's shown to the user. This can be used to inject information into a commit template. Accepts parameters for the path to the commit message file, type of commit and the commit SHA-1 if it's an amended commit.
+- commit-msg - Takes one parameters which is the path to the temporary commit message file with the message written by the developer. If this script exits a non-zero status, the commit is aborted. This can be used to verify the project state or to validate the commit message written by the developer.
+- post-commit - Generally used to output extra information for notification or something similar.
+- There are hooks for email based workflow scenarios which are only relevant if you really use this type of workflow.
+- pre-rebase - Halts the process if non-zero is returned, and can be used to prevent rebasing if the commits have already been pushed.
+- post-rewrite - This is run by commands which replace commits, such as ammending commits, and rebase. The single argument is the command which triggered it.
+- post-merge - runs after a successful merge, you can use it to restore data in the working tree that git doesn't track, like permissions. The hook can also validate the presence of files external to git.
+- pre-push - Runs after the remote refs have been udpated, but before objects have been sent. Receives the name and location of the remote as parameters, and a list of to be updated refs through stdin.
+- pre-auto-gc - Runs after **git gc --auto** has been invoked. Can be used to notify if it is happening or to abort the collection if inconvenient.
+
+### Server side hooks
+- pre-receive - Takes a list of references being pushed from stdin. A non-zero exit code will not accept any of the references. You can use this script to ensure none of the references are non-fast-forwards.
+- update - Run once for each branch. Accepts the name of the reference (branch), the SHA-1 of the reference pointed to before the push, and the SHA-1 the user is trying to push. If non-zero is returned, only that branch is rejected.
+- post-receive - Run after the process is completed, and takes the same input as the pre-receive script. This can be used to notify people or update tracking systems.
