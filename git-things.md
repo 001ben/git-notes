@@ -833,3 +833,16 @@ For the example above if you wanted to set the push url for master as well, you 
 ```
 
 Lastly, to delete references from the remote server, you would use a blank src refspec, i.e. **git push origin :topic**, as this sets the topic refspec on the server to nothing, which deletes it.
+
+## Transfer protocols
+An overview of the transfer protocol process is provided for a few of the protocols to give an idea of the process. They'll be summarized even more briefly here.
+
+### Dumb HTTP
+Dumb Http works by first pulling down the info/refs file which is created by the update-server-info command (along with a few other necessary objects), which needs to be enabled by renaming .git/hooks/post-receive.sample to .git/hooks/post-receive. This file names all the refs on the server. Second HEAD is retrieved to find what the repo should point to after it's cloned. The dumb protocol then iterates through the refs gathered from info/refs file and retrieves each commit, tree and git object in turn, or the packfiles containing those objects. Each commit will point to the parent commit, and the process will continue until the repository is cloned or fetched.
+
+Dumb HTTP can't receive commits though.
+
+### Smart HTTP / SSH
+Smart HTTP and SSH both use a process running on the server and client to communicate with each other rather than letting the client do all the requesting. In a push operation, both protocols use the send-pack and receive-pack processes to communicate, send for client and receive for remote side, the only difference is the handshake and specific format of the messages. For a push operation, both protocols use the fetch-pack and upload-pack processes, the client initiates the fetch-pack process, while the server responds with an upload-pack process.
+
+Protocols have many more capabilities such as multi_ack or side-band, but they aren't covered in pro git.
