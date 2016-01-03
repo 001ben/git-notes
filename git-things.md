@@ -70,10 +70,10 @@ Just the basics of working with git. Maybe the most common/important section tho
 - **git push _remote-name_ _branch-name_** will push the branch to the remote repo
 
 ## Tagging
-- **git log** lists all logs. Below are the modifiers.
+- **git tag** lists all tags. Below are the modifiers.
   - **-l _search-pattern_** filters list by pattern
   - **-a _tag-name_ -m '_tag-message_'** adds an annotated tag.
-  - **git log _tag-name_** is used to add a lightweight tag. Note no options used.
+  - **git tag _tag-name_** is used to add a lightweight tag to the current commit. Note no options used.
   - can use **git show _tag-name_** to show a tag along with it's commit information
   - **git tag -a _tag-name_ _commit-checksum_** will tag a historical commit. Only first few characters of checksum are required (enough to identify)
   - **git push _remote-name_ _tag-name_** will push a tag to a remote, since **git push** doesn't automatically push tags to remote.
@@ -797,3 +797,15 @@ Git objects are actually quite simple, and can be created quite easily with a sc
 6. The folder for the file will be the first 2 characters of the sha-1, create if necessary inside the .git/objects directory.
 7. The filename will be the remaining sha-1 characters, create the file and store the deflated object contents in the file.
 
+## Git References
+References in git are stored in the .git/refs directory. References are simple, branches can be stored just by creating a file named as your branch name containing the sha-1 of the commit it points to. It's much safer using git commands to create and modify git references though. These branch names can be used as normal with **git log** and can be shown with **git branch -v**
+
+The HEAD file just points to a branch name. It's sumbolic as it's referencing a reference, rather than a commit sha directly.
+
+Remote references are also tracked in the .git/refs/remotes directory. If you run git fetch on an origin remote, you might have a .git/refs/remotes/origin/master file containing the commit sha of the current commit on the server. These remote references can't be pointed at by HEAD, so they're considered read only.
+
+- **git update-ref refs/heads/_ref-name_ _commit-sha_** will create or update a reference, and you can use short commit names with this command. This will create branches for you, ermahgerd.
+- **git symbolic-ref HEAD** is used to get the current value of HEAD.
+  - **git symbolic-ref HEAD refs/heads/_ref-name_** will update head to point to a different branch, although you have to use the **refs/heads/_ref-name_** style, you can't just say **ref-name**.
+- **git update-ref refs/tags/_tag-name_ _commit-sha_** will create a lightweight tag, which is the same format as a branch and literally just points to a commit giving only tag name information. You could use this to mark commits as different versions, i.e. **git update-ref refs/tags/v1.0 _commit-sha_**, although the porcelain command would be better.
+- **git tag -a _tag-name_ _object-sha_ -m _tag-message_** creates an annotated tag, which is actually stored as a git object referencing a git object. You can use annotated tags to tag any kind of git object, they're pretty useful like that.
