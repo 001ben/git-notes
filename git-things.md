@@ -814,3 +814,22 @@ Remote references are also tracked in the .git/refs/remotes directory. If you ru
 Initially when objects are committed and stored in git, each successive version is compressed and stored as a standalone object referred to as a "loose" object. Running **git gc**, having too many loose objects or pushing to a remote server will combine successive similar versions of the same file into what's known as a packfile, which is a single file representing all the files and versions of those files tracked by git in a compressed format, and it represents file versions using diff's between a file and the closest file to it. The full file in a successive number of versions is actually the most recent one, as that is what will most likely be accessed and therefore it's the quickest to retrieve.
 
 **git verify-pack -v .git/objects/pack/_pack-name.idx_** will show you the objects, types and sizes of everything tracked by that pack.
+
+## Refspec
+The format for mapping a local refs folder to a server refs folder is called a refspec, and looks like **&lt;src&gt;:&lt;dst&gt;**, where the + is optional and indicates whether non fast forwards should be fetched. This format is used with fetch, push, pull and the config file to specify what branches and location refs should be retrieved and stored from.
+
+**git fetch origin +refs/heads/master:refs/remotes/origin/master** would pull down the remote master branch to the local **refs/remotes/origin/master** remote tracking branch.
+
+Adding **fetch = +refs/heads/_branch-name_:refs/remotes/origin/_branch-name_** instructs git to pull down that specific branch when a fetch is run. You can add multiple of these lines, or just * to pull down all refs in a folder. The default fetch line is __fetch = +refs/heads/&#42;:refs/remotes/origin/&#42;__.
+
+To do some specific namespacing of refs, say you had a QA and test team pushing to separate namespaces, you could map this as __+refs/heads/qa/&#42;:refs/remotes/origin/qa/&#42;__ and __+refs/heads/test/&#42;:refs/remotes/origin/test/&#42;__.
+
+For the example above if you wanted to set the push url for master as well, you would set the QA team config to the following:
+```
+[remote "origin"]
+	url = https://whatever.com
+	fetch = +refs/heads/qa/*:refs/remotes/origin/*
+	push = refs/heads/master:refs/heads/qa/master
+```
+
+Lastly, to delete references from the remote server, you would use a blank src refspec, i.e. **git push origin :topic**, as this sets the topic refspec on the server to nothing, which deletes it.
