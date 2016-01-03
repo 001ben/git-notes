@@ -680,7 +680,7 @@ Several helpers can be configured as below:
 
 All the config options invoke a corresponding program to manage credential storage, so configuring cache would just invoke **git credential-cache**. You can easily write a custom credential cache in this manner, and add it to you PATH so you can set **git config --gloal credential.helper foo** to run git-credential-foo for you. More on this at [git-scm](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage#A-Custom-Credential-Cache).
 
-# Configuring Git
+# 9. Configuring Git
 
 ## git config
 Git config options can be set at the following levels:
@@ -767,3 +767,33 @@ To enable a hook script, put a file in the .git/hooks that is named appropriatel
 - pre-receive - Takes a list of references being pushed from stdin. A non-zero exit code will not accept any of the references. You can use this script to ensure none of the references are non-fast-forwards.
 - update - Run once for each branch. Accepts the name of the reference (branch), the SHA-1 of the reference pointed to before the push, and the SHA-1 the user is trying to push. If non-zero is returned, only that branch is rejected.
 - post-receive - Run after the process is completed, and takes the same input as the pre-receive script. This can be used to notify people or update tracking systems.
+
+# 10. Git Internals
+Git low level commands are called "plumbing" commands, and interact directly with the lower level objects. All things necessary for a git repository are stored inside the .git directory.
+
+## Git objects
+Git objects are the main components of git, and include file (blob) objects, tree objects and commit objects, manipulating these is what git primarily does. The following low-level commands can be used to interact directly with git objects and can actually create a git history without the use of **git add** or **git commmit**.
+
+- **git hash-object _filename_** is used to hash files in the git object format, and will output the sha-1
+  - **-w** is the flag which makes this command useful, as it will actually store the hashed git object in the repository.
+- **git cat-file _sha-1_** is the swiss army knife of inspecting git objects, it can accept the sha-1 of any object and can print things such as the type and contents of the git object. This will not run without a flag though
+  - **-p** automatically deduce the object type and print the contents accordingly
+  - **-t** print the type of the object
+- **git update-index** is used to add files to the staging area/index, and is combined with write-tree to create treee objects.
+  - **--add** should be used to add files which do not yet exist in the index.
+  - **--cacheinfo 100644 _sha-1_ _filepath_** is used to add git objects to the index that don't currently exist in the working directory, for if a stored object's file has been changed or removed and needs to be added to git manually
+- **git write-tree** is run after the index has been updated correctly, and will create a tree object with the current index.
+- **git read-tree --prefix=_prefix-name_** will read an existing tree object into the current index under a directory name. This can be used to import an entire repo from this or another repo into a folder in the current repo. Write-tree after this command to store the resulting tree.
+- **echo 'commit message' | git commit-tree _tree-sha_** to create a commit referencing a tree with no parent commit
+  - **-p _parent-commit-sha_** references a parent commit from that commit (start this process with the older commit first being parentless)
+
+## Object creation
+Git objects are actually quite simple, and can be created quite easily with a script. The process of creating git objects is as follows, and could be implemented with any language.
+1. Get your file contents.
+2. Construct a header for the file with the format: "blob _content.length_\0"
+3. Append the header to the file contents to create the full object contents.
+4. Calculate the sha-1 of the object contents using a sha-1 digest library.
+5. Use zlib to deflate the object contents.
+6. The folder for the file will be the first 2 characters of the sha-1, create if necessary inside the .git/objects directory.
+7. The filename will be the remaining sha-1 characters, create the file and store the deflated object contents in the file.
+
