@@ -809,3 +809,8 @@ Remote references are also tracked in the .git/refs/remotes directory. If you ru
   - **git symbolic-ref HEAD refs/heads/_ref-name_** will update head to point to a different branch, although you have to use the **refs/heads/_ref-name_** style, you can't just say **ref-name**.
 - **git update-ref refs/tags/_tag-name_ _commit-sha_** will create a lightweight tag, which is the same format as a branch and literally just points to a commit giving only tag name information. You could use this to mark commits as different versions, i.e. **git update-ref refs/tags/v1.0 _commit-sha_**, although the porcelain command would be better.
 - **git tag -a _tag-name_ _object-sha_ -m _tag-message_** creates an annotated tag, which is actually stored as a git object referencing a git object. You can use annotated tags to tag any kind of git object, they're pretty useful like that.
+
+## Packfiles
+Initially when objects are committed and stored in git, each successive version is compressed and stored as a standalone object referred to as a "loose" object. Running **git gc**, having too many loose objects or pushing to a remote server will combine successive similar versions of the same file into what's known as a packfile, which is a single file representing all the files and versions of those files tracked by git in a compressed format, and it represents file versions using diff's between a file and the closest file to it. The full file in a successive number of versions is actually the most recent one, as that is what will most likely be accessed and therefore it's the quickest to retrieve.
+
+**git verify-pack -v .git/objects/pack/_pack-name.idx_** will show you the objects, types and sizes of everything tracked by that pack.
