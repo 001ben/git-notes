@@ -846,3 +846,20 @@ Dumb HTTP can't receive commits though.
 Smart HTTP and SSH both use a process running on the server and client to communicate with each other rather than letting the client do all the requesting. In a push operation, both protocols use the send-pack and receive-pack processes to communicate, send for client and receive for remote side, the only difference is the handshake and specific format of the messages. For a push operation, both protocols use the fetch-pack and upload-pack processes, the client initiates the fetch-pack process, while the server responds with an upload-pack process.
 
 Protocols have many more capabilities such as multi_ack or side-band, but they aren't covered in pro git.
+
+## Maintenance and recovery
+Git occasionally runs auto gc, which can also be run with **git gc --auto**. This will place loose objects in packfiles or consolidate many packfiles in a big packfiles. The limits at which this will take place is determined by the config options **gc.auto** which is defaulted to 7000, and **gc.autopacklimit** which is defaulted to 50. Git gc will also pack up all refs including branches and tags to a file named .git/packed-refs. This file doesn't change until refs are repacked, git will just retrieve ref values from the .git/refs/ directory first if it can, and will fall back to packed-refs.
+
+If data needs to be recovered, i.e. you deleted or reset a branch with work still on it, you just need to create a new branch pointing to that work or reset a branch again. Finding the commit you want in git can be achieved pretty easily.
+- **git reflog** will show you the positions HEAD has been at anytime in the repo, so you can just reset to the commit before you deleted/reset.
+- **git log -g** will show you normal log output for your reflog.
+- **git fsck --full** will show all objects that aren't pointed to by anything, allowing you to find the commit which needs to be recovered.
+
+To remove data from the history, there are ways of doing it, but it's best to do it when a repo has been freshly cloned or every developer knows to rebase their work off the new repo.
+- **git count-objects -v** is a quick way to check the size of the repo, and gives the size in kB.
+- **git verify-pack -v** shows you the files in a pack, and you can use the third column to find the big files. Pipe this output into **sort -k 3 -n** to order the output.
+- Once the sha-1 of a big file has been identified, you can use **git rev-list --objects --all | grep _big-file-sha_** to find the filename associated with that object.
+- Once the filename has been identified, you can use **git log --oneline --branches -- _big-file-name_** to identify what commits this file has been modified in.
+- Finally, use the oldest commit sha with filter-branch to remove the file from the git history, with something like **git filter-branch --index-filter 'git rm --ignore-unmatch --cached _big-file-name_' -- _oldest-commit-sha_^..** , this example uses the --index-filter instead of the previously seen --tree-filter, as it skips the overhead of checking out the large file, though --tree-filter could be used as well. The --ignore-unmatch flag in git rm instructs rm to not error out if the pattern does not match anything. Lastly, starting from the parent of the oldest commit means it only has to traverse less of the history, as anything before that doesn't matter. This will modify the sha-1's of all the commits and above that were changed however.
+- After removing the file from the history, the reflog and refs git added when filter-branch was applied need to be removed, so run **rm -Rf .git/refs/original** and **rm -Rf .git/logs** before running **git gc** to repack the database. Running **git count-objects -v** again will show that the size of the packfile has been reduced by removing the large file.
+- To remove the large file from your repository once and for all, run **git prune --expire now** to remove all unreferenced objects. The commits will not be able to be recovered at all now though.
