@@ -126,7 +126,7 @@ All about branches, remotes, tracking, deleting and merging branches.
 - can use **git pull --rebase** to do all this cleanly.
 - rebase is good for keeping the commit history clean, but merge maintains information about what was actually developed on what branch. Both are necessary in different situations, so what this is used for is very team based. Good practice is to rebase all local changes before committing them.
 
-#Git on the server
+# 4. Git on the server
 
 ## Protocols
 Protocol options include:
