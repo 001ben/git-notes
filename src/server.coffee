@@ -9,7 +9,7 @@ app.set 'views', './dist/'
 app.set 'view engine', 'jade'
 
 app.get '/', (req, res) ->
-  fs.readFile './git-things.md', (err, data) ->
+  fs.readFile './README.md', (err, data) ->
     if err?
       res.json(err);
     else

@@ -16,7 +16,7 @@
   app.set('view engine', 'jade');
 
   app.get('/', function(req, res) {
-    fs.readFile('./git-things.md', function(err, data) {
+    fs.readFile('./README.md', function(err, data) {
       if (err != null) {
         res.json(err);
       } else {
