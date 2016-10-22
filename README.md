@@ -49,7 +49,7 @@ Just the basics of working with git. Maybe the most common/important section tho
     - fuller
     - format - this one is special, useful with --graph
 - good way to see commits across all branches is **git log --oneline --decorate --graph --all**
-  - The full command for adding the config item is **git config --global alias.ll "log --oneline --decorate --graph --all**
+  - The full command for adding the config item is **git config --global alias.ll "log --oneline --decorate --graph --all"**
 
 ## Oops, how do i fix it?
 - **git commit --amend** should be used if you forget to add files or mess up your commit message
