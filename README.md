@@ -49,6 +49,7 @@ Just the basics of working with git. Maybe the most common/important section tho
     - fuller
     - format - this one is special, useful with --graph
 - good way to see commits across all branches is **git log --oneline --decorate --graph --all**
+  - The full command for adding the config item is **git config --global alias.ll "log --oneline --decorate --graph --all**
 
 ## Oops, how do i fix it?
 - **git commit --amend** should be used if you forget to add files or mess up your commit message
@@ -691,6 +692,8 @@ Git config options can be set at the following levels:
 The lowest level where an option is specified will be used, otherwise the default will be taken
 
 The following are a list of possible config options you may set in git:
+- user.name=_username_ - your github username probably
+- user.email=_email_ - your github email probably
 - core.editor=_your editor_ - can be notepad, emacs, vi or whatever else
 - commit.template=_text-file-with-message_ - useful for standardizing commit messages in a team.
 - core.pager=more/less/''/other-pager
